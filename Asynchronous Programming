@@ -1,0 +1,43 @@
+import java.util.concurrent.CompletableFuture;
+
+public class AsynchronousProgrammingExample {
+    public static void main(String[] args) {
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> task1());
+        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> task2());
+
+        CompletableFuture<Integer> combinedFuture = future1.thenCombineAsync(future2, (result1, result2) -> result1 + result2);
+
+        combinedFuture.thenAccept(result -> {
+            System.out.println("Combined Result: " + result);
+        });
+
+        // Keep the main thread alive to see the output
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int task1() {
+        System.out.println("Task 1 started.");
+        sleep(1000);
+        System.out.println("Task 1 completed.");
+        return 10;
+    }
+
+    public static int task2() {
+        System.out.println("Task 2 started.");
+        sleep(1500);
+        System.out.println("Task 2 completed.");
+        return 20;
+    }
+
+    public static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
