@@ -1,0 +1,85 @@
+Certainly, here's a simple example of how you can use multithreading and concurrency in Java. In this example, we'll create a program that simulates a bank with multiple customers concurrently depositing and withdrawing funds from their accounts.
+
+```java
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+class BankAccount {
+    private double balance;
+    private Lock lock = new ReentrantLock();
+
+    public BankAccount(double initialBalance) {
+        balance = initialBalance;
+    }
+
+    public void deposit(double amount) {
+        lock.lock();
+        try {
+            balance += amount;
+            System.out.println("Deposited: " + amount + ", Current balance: " + balance);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void withdraw(double amount) {
+        lock.lock();
+        try {
+            if (balance >= amount) {
+                balance -= amount;
+                System.out.println("Withdrawn: " + amount + ", Current balance: " + balance);
+            } else {
+                System.out.println("Insufficient funds.");
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+class CustomerThread extends Thread {
+    private BankAccount account;
+    private boolean isDeposit;
+
+    public CustomerThread(BankAccount account, boolean isDeposit) {
+        this.account = account;
+        this.isDeposit = isDeposit;
+    }
+
+    public void run() {
+        if (isDeposit) {
+            account.deposit(100);
+        } else {
+            account.withdraw(50);
+        }
+    }
+}
+
+public class BankSimulation {
+    public static void main(String[] args) {
+        BankAccount account = new BankAccount(1000);
+
+        Thread customer1 = new CustomerThread(account, true); // Deposit
+        Thread customer2 = new CustomerThread(account, false); // Withdraw
+        Thread customer3 = new CustomerThread(account, true); // Deposit
+
+        customer1.start();
+        customer2.start();
+        customer3.start();
+
+        try {
+            customer1.join();
+            customer2.join();
+            customer3.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Final balance: " + account.getBalance());
+    }
+}
+```
+
+In this example, we have a `BankAccount` class with methods for depositing and withdrawing funds, both of which use a `ReentrantLock` to ensure thread safety. The `CustomerThread` class represents a customer who either deposits or withdraws money from the bank account. Finally, in the `BankSimulation` class, we create three customer threads that interact with the same bank account concurrently.
+
+Keep in mind that this is a simplified example for educational purposes. In real-world scenarios, more sophisticated synchronization mechanisms and error handling would be necessary.
