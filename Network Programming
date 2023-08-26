@@ -1,0 +1,65 @@
+Sure, here's a simple Java program that demonstrates network programming by creating a basic server and client communication using sockets. In this example, the client sends a message to the server, and the server responds with a modified version of the message.
+
+```java
+import java.io.*;
+import java.net.*;
+
+public class SimpleServer {
+    public static void main(String[] args) {
+        int portNumber = 12345;
+
+        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+            System.out.println("Server is listening on port " + portNumber);
+
+            while (true) {
+                try (Socket clientSocket = serverSocket.accept();
+                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+
+                    System.out.println("Client connected: " + clientSocket.getInetAddress());
+
+                    String message = in.readLine();
+                    System.out.println("Received from client: " + message);
+
+                    String response = "Server response: " + message.toUpperCase();
+                    out.println(response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+public class SimpleClient {
+    public static void main(String[] args) {
+        String serverAddress = "localhost";
+        int portNumber = 12345;
+
+        try (Socket socket = new Socket(serverAddress, portNumber);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            System.out.println("Connected to server");
+
+            String message = "Hello, server!";
+            out.println(message);
+
+            String response = in.readLine();
+            System.out.println("Server response: " + response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Here's how the code works:
+
+- `SimpleServer` listens on a specified port using a `ServerSocket`. It accepts incoming client connections, reads the message from the client, converts it to uppercase, and sends the modified message back to the client.
+
+- `SimpleClient` connects to the server using the server's IP address and port number. It sends a message to the server and then reads and prints the server's response.
+
+Please note that this is a basic example to demonstrate network programming concepts using sockets. In a real-world scenario, you'd need error handling, better message protocols, and potentially more complex communication patterns.
