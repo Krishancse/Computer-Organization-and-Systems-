@@ -1,0 +1,73 @@
+Creating a complete real-time system in a single response is quite complex, but I can provide you with a basic example that takes input, processes it, and provides output using a simple real-time task scheduling approach. In this example, we'll simulate a system that receives temperature readings, processes them, and displays alerts if certain conditions are met.
+
+```java
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Scanner;
+
+class TemperatureSensor {
+    private double currentTemperature;
+
+    public void setCurrentTemperature(double temperature) {
+        currentTemperature = temperature;
+    }
+
+    public double getCurrentTemperature() {
+        return currentTemperature;
+    }
+}
+
+class TemperatureProcessor extends TimerTask {
+    private TemperatureSensor sensor;
+
+    public TemperatureProcessor(TemperatureSensor sensor) {
+        this.sensor = sensor;
+    }
+
+    @Override
+    public void run() {
+        double temperature = sensor.getCurrentTemperature();
+        System.out.println("Processing temperature: " + temperature);
+
+        // Simulate processing logic (e.g., checking for temperature alerts)
+        if (temperature > 30) {
+            System.out.println("ALERT: High temperature detected!");
+        }
+    }
+}
+
+public class RealTimeTemperatureSystem {
+    public static void main(String[] args) {
+        TemperatureSensor sensor = new TemperatureSensor();
+        Timer timer = new Timer();
+
+        TemperatureProcessor processor = new TemperatureProcessor(sensor);
+        int period = 5000; // 5 seconds
+
+        timer.scheduleAtFixedRate(processor, 0, period);
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter current temperature (Ctrl+C to exit): ");
+            double temperature = scanner.nextDouble();
+            sensor.setCurrentTemperature(temperature);
+        }
+    }
+}
+```
+
+In this example:
+
+1. The `TemperatureSensor` class simulates a temperature sensor that holds the current temperature value.
+
+2. The `TemperatureProcessor` class extends `TimerTask` and represents a task that processes temperature data. It checks if the temperature exceeds a certain threshold and displays an alert.
+
+3. The `RealTimeTemperatureSystem` class is the main class of the example. It creates a `TemperatureSensor`, a `Timer`, and a `TemperatureProcessor`.
+
+4. The `TemperatureProcessor` is scheduled to run every 5 seconds using `timer.scheduleAtFixedRate()`.
+
+5. Inside the main loop, the program prompts the user to enter the current temperature, which is then set in the `TemperatureSensor`.
+
+6. The `TemperatureProcessor` task processes the temperature and checks for alerts based on the entered value.
+
+Keep in mind that this example is simplified and does not cover all aspects of a real-time system, such as strict timing constraints, synchronization, and more advanced processing. A real-world real-time system would require careful design and consideration of various factors to ensure reliability and accuracy.
