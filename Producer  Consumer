@@ -1,0 +1,97 @@
+Certainly! The Producer-Consumer pattern is a classic concurrency pattern where one or more producer threads generate data and put it into a shared buffer, and one or more consumer threads take and process data from the buffer. Here's an example implementation in Java:
+
+```java
+import java.util.LinkedList;
+import java.util.Queue;
+
+class Buffer {
+    private Queue<Integer> data;
+    private int capacity;
+
+    public Buffer(int capacity) {
+        this.capacity = capacity;
+        data = new LinkedList<>();
+    }
+
+    public synchronized void produce(int value) throws InterruptedException {
+        while (data.size() >= capacity) {
+            wait();
+        }
+        data.offer(value);
+        System.out.println("Produced: " + value);
+        notifyAll();
+    }
+
+    public synchronized int consume() throws InterruptedException {
+        while (data.isEmpty()) {
+            wait();
+        }
+        int value = data.poll();
+        System.out.println("Consumed: " + value);
+        notifyAll();
+        return value;
+    }
+}
+
+class Producer extends Thread {
+    private Buffer buffer;
+
+    public Producer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            try {
+                buffer.produce(i);
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+class Consumer extends Thread {
+    private Buffer buffer;
+
+    public Consumer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            try {
+                int value = buffer.consume();
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+public class ProducerConsumerExample {
+    public static void main(String[] args) {
+        Buffer buffer = new Buffer(2);
+
+        Producer producer = new Producer(buffer);
+        Consumer consumer = new Consumer(buffer);
+
+        producer.start();
+        consumer.start();
+    }
+}
+```
+
+In this example:
+
+1. The `Buffer` class represents the shared buffer where data is produced and consumed. It uses synchronized methods to ensure thread safety. The `produce` method adds data to the buffer, and the `consume` method retrieves and removes data from the buffer.
+
+2. The `Producer` class simulates a producer thread that generates data and puts it into the buffer.
+
+3. The `Consumer` class simulates a consumer thread that takes and processes data from the buffer.
+
+4. The `ProducerConsumerExample` class creates a shared buffer, a producer thread, and a consumer thread. It starts both threads to demonstrate the Producer-Consumer pattern in action.
+
+Please note that this is a simplified example. In real-world scenarios, you might need to handle more complex synchronization, error handling, and other considerations.
